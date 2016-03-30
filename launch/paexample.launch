@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+	<master auto="start"/>
+
+	<node pkg="paexample" type="paexample" respawn="false" name="paexample" output="screen">
+		<rosparam file="$(find paexample)/config/parameters.yaml" command="load" />
+	</node>
+</launch>
