@@ -117,10 +117,10 @@ if __name__ == '__main__':
         classNames = []
         for a in sys.argv[3::]:
             features.append(numpy.load(a))
-            classNames.append(a.replace(".npy",""))
+            classNames.append(a.replace(".npy",""))            
         classifierParams = numpy.array([0.001, 0.01,  0.5, 1.0, 5.0])
         nExp = 50
-        bestParam = audioTrainTest.evaluateClassifier(features, classNames, nExp, "svm", classifierParams, 0, perTrain = 0.01)
+        bestParam = audioTrainTest.evaluateClassifier(features, classNames, nExp, "svm", classifierParams, 0, perTrain = 0.1)
         [featuresNorm, MEAN, STD] = audioTrainTest.normalizeFeatures(features)        # normalize features
         MEAN = MEAN.tolist()
         STD = STD.tolist()
