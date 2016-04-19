@@ -21,14 +21,16 @@ catkin_make --pkg paexample
 - - - - - - - - - - 
 Run
 - - - - - - - - - - 
+Feature extraction module (in a separate console tab): 
 roslaunch paexample paexample.launch
 
-Feature extraction and train:
+Train and Run:
  * rosrun paexample features_subscriber.py addClass silence
  * rosrun paexample features_subscriber.py addClass speech
  * rosrun paexample features_subscriber.py addClass music
  * rosrun paexample features_subscriber.py addClass activity
  * rosrun paexample features_subscriber.py train model1 silence.npy speech.npy music.npy activity.npy 
+ * rosrun paexample features_subscriber.py run model1
 
 
 - - - - - - - -
