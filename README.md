@@ -14,12 +14,12 @@ install and setup ros
  * echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 - - - - - - - - - - 
-     BUILD
+Build
 - - - - - - - - - - 
 catkin_make --pkg paexample
 
 - - - - - - - - - - 
-      RUN
+Run
 - - - - - - - - - - 
 roslaunch paexample paexample.launch
 
@@ -32,7 +32,7 @@ Feature extraction and train:
 
 
 - - - - - - - -
- Requirements
+Requirements
 - - - - - - - -
 a) fftw: 
 sudo apt-get install libfftw3-dev 
