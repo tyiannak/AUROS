@@ -45,11 +45,16 @@ public:
     Eigen::VectorXd std()  { return (nm1 * sum_sq_ - nnm1 * sum_.cwiseProduct(sum_)).array().sqrt(); }
 
     std::vector<float> meanf() { auto m = mean(); std::copy(m.data(), m.data() + m.size(), aux_.begin()); return aux_; }
-    std::vector<float> stdf() { auto s = std(); std::copy(s.data(), s.data() + s.size(), aux_.begin()); return aux_; }
-
-
+    std::vector<float> stdf() { auto s = std(); std::copy(s.data(), s.data() + s.size(), aux_.begin()); return aux_; }    
     void push(const Eigen::VectorXd & val)
-    {
+    {        
+        for (unsigned int i=0; i<val.size(); i++)
+            if (val(i) != val(i))                
+            {
+                std::cout << val(i) << " " <<  i << std::endl;
+                val(i) = 0;
+            }
+
         sum_ += val;
         sum_sq_ += val.cwiseProduct(val);
 

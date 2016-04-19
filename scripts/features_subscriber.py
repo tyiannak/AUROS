@@ -71,7 +71,10 @@ def featuresCallback(feat_msg):
     # load global vars:
     global prevTime, count, mtFeaturesMatrix, start_time
 
-    curFV = feat_msg.ltWin1mean + feat_msg.ltWin1deviation                                              # merge long term mean and std feature statistics (from the respective topic)
+    curFV = feat_msg.ltWin1mean + feat_msg.ltWin1deviation                                              # merge long term mean and std feature statistics (from the respective topic)        
+    curFV = list(curFV)
+    del curFV[18]
+    
     if count == 0:
         start_time = feat_msg.time                                                                      # get current timestamp
 
@@ -80,20 +83,18 @@ def featuresCallback(feat_msg):
         print "{0:.3f}\t{1:.3f}".format(float(count) / 20.0, feat_msg.time-start_time)
 
     if len(modelName)>0:                                                                                # TESTING MODE
-        global classifierInfo, energies, energies2
+        global classifierInfo, energies, energies2        
         curFVOr = curFV
-        curFV = (curFV - classifierInfo["MEAN"]) / classifierInfo["STD"]                                # feature normalization
+        curFV = (curFV - classifierInfo["MEAN"]) / classifierInfo["STD"]                                # feature normalization                        
         [Result, P] = audioTrainTest.classifierWrapper(classifierInfo["Classifier"], "svm", curFV)      # classification
         classResult = classifierInfo["classNames"][int(Result)]
         #print "{0:.5f}\t{1:.3f}\t{2:.3f}\t{3:s}".format(feat_msg.features[0], float(count) / 20.0, feat_msg.time-start_time, classResult)
         
-        #energies = numpy.append(energies, feat_msg.features[0])                                     # append mid-term energy (1st feature)
-
+        #energies = numpy.append(energies, feat_msg.features[0])                                     # append mid-term energy (1st feature)        
         if classResult == "silence":
             energies.append(curFVOr[0])
         else:
-            energies.append(sum(energies)/float(len(energies)))
-        
+            energies.append(sum(energies)/(float(len(energies))+0.0001))
         print "{0:s}\t{1:.5f}\t{2:.5f}\t{3:.5f}".format(classResult, feat_msg.features[0], curFVOr[0],sum(energies)/float(len(energies)))
     
     prevTime = feat_msg.time                                                                            # get current timestamp
@@ -116,11 +117,13 @@ if __name__ == '__main__':
         features = []
         classNames = []
         for a in sys.argv[3::]:
-            features.append(numpy.load(a))
+            temp = numpy.load(a)
+            temp = numpy.delete(temp, (18), axis=1)
+            features.append(temp)                        
             classNames.append(a.replace(".npy",""))            
         classifierParams = numpy.array([0.001, 0.01,  0.5, 1.0, 5.0])
         nExp = 50
-        bestParam = audioTrainTest.evaluateClassifier(features, classNames, nExp, "svm", classifierParams, 0, perTrain = 0.1)
+        bestParam = audioTrainTest.evaluateClassifier(features, classNames, nExp, "svm", classifierParams, 0, perTrain = 0.01)
         [featuresNorm, MEAN, STD] = audioTrainTest.normalizeFeatures(features)        # normalize features
         MEAN = MEAN.tolist()
         STD = STD.tolist()
