@@ -2,11 +2,15 @@
 install and setup ros
 - - - - - - - -- - 
 
-sudo apt-get install ros-jade-desktop-full
-sudo rosdep init
+ * sudo apt-get install ros-jade-desktop-full
+ * sudo rosdep init
+
 rosdep update
+
 echo "source /opt/ros/jade/setup.bash" >> ~/.bashrc
+
 source ~/.bashrc
+
 sudo apt-get install python-rosinstall
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
