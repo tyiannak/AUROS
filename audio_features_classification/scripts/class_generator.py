@@ -58,7 +58,7 @@ def initSubscriber():
         print MEAN
 
     rospy.init_node("features_subscriber")              # start the processing node
-    features_subscriber = rospy.Subscriber("/features_topic", featMsg, featuresCallback)    # subscribe the featuresCallback() callback function
+    features_subscriber = rospy.Subscriber("/audio_features_extraction/features", featMsg, featuresCallback)    # subscribe the featuresCallback() callback function
     print "Waiting for features_topic to be published..."
     rospy.spin()
 

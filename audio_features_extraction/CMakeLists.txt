@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(paexample)
+project(audio_features_extraction)
 
 
 
@@ -36,7 +36,7 @@ include_directories(${catkin_INCLUDE_DIRS} ${BOOST_INCLUDE_DIR} ${Boost_INCLUDE_
 
 aux_source_directory(src SRC_LIST)
 
-add_executable(paexample ${SRC_LIST})
+add_executable(audio_features_extraction ${SRC_LIST})
 target_link_libraries( ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES} portaudiocpp fftw3 sndfile)
 
 file(GLOB_RECURSE  LIB_CPP "./src/*.cpp")
@@ -44,4 +44,4 @@ file(GLOB_RECURSE  LIB_HDRS "./src/*.h")
 
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall" )
 
-#add_library(paexample ${})
+#add_library(audio_features_extraction ${})

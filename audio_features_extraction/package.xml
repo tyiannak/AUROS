@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>paexample</name>
+  <name>audio_features_extraction</name>
   <version>1.0.0</version>
-  <description>The paexample ros package</description>
+  <description>The audio_features_extraction ros package</description>
 
 
   <maintainer email="konstant@iit.demokritos.gr">Stasinos Konstantopoulos</maintainer>
@@ -20,7 +20,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/paexample</url> -->
+  <!-- <url type="website">http://wiki.ros.org/audio_features_extraction</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->

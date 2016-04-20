@@ -15,7 +15,7 @@ features_filename: 'output_features' #not applicable on list-devices mode
 
 # Feature vectors are published in this topic
 # default: 'features_topic'
-features_topic: 'features_topic'
+features_topic: 'audio_features_extraction/features'
 
 
 ##

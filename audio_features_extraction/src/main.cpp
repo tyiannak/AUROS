@@ -19,7 +19,7 @@
 #include "ros/ros.h"
 #include <ros/package.h>
 #include <ctime>
-#include "paexample/featMsg.h"
+#include "audio_features_extraction/featMsg.h"
 
 
 namespace pa = portaudio;
@@ -212,35 +212,35 @@ double spectralCentroid(Eigen::VectorXd FFT, int Fs)
 
 int main(int argc, char* argv[])
 {
-    ros::init(argc, argv, "paexample");
+    ros::init(argc, argv, "audio_features_extraction");
     ros::NodeHandle n;
     bool write_wav, write_features;
     int stWin, ltWin1, ltWin2, window_type, window_param, fft_size, mel_filters, f_min, f_max, num_coefs;
     double frame_overlap, preemphasis_coeff, mel_filter_overlap;
     std::string featuresTopic, exec_mode, wav_filename, features_filename;
-    n.param("paexample/mode", exec_mode, std::string("device-input"));
-    n.param("paexample/write_wav", write_wav, false);
-    n.param("paexample/wav_filename", wav_filename, std::string("output.wav"));
-    n.param("paexample/write_features", write_features, false);
-    n.param("paexample/features_filename", features_filename, std::string("output_features"));
+    n.param("audio_features_extraction/mode", exec_mode, std::string("device-input"));
+    n.param("audio_features_extraction/write_wav", write_wav, false);
+    n.param("audio_features_extraction/wav_filename", wav_filename, std::string("output.wav"));
+    n.param("audio_features_extraction/write_features", write_features, false);
+    n.param("audio_features_extraction/features_filename", features_filename, std::string("output_features"));
 
-    n.param("paexample/stWin", stWin, 20);
-    n.param("paexample/ltWin1", ltWin1, 50);
-    n.param("paexample/ltWin2", ltWin2, 250);
+    n.param("audio_features_extraction/stWin", stWin, 20);
+    n.param("audio_features_extraction/ltWin1", ltWin1, 50);
+    n.param("audio_features_extraction/ltWin2", ltWin2, 250);
 
-    n.param("paexample/features_topic", featuresTopic, std::string("features_topic"));
+    n.param("audio_features_extraction/features_topic", featuresTopic, std::string("features_topic"));
 
-    n.param("paexample/frame_overlap", frame_overlap, 0.0);
-    n.param("paexample/preemphasis_coeff", preemphasis_coeff, 0.97);
-    n.param("paexample/window_type", window_type, 1);
-    n.param("paexample/window_param", window_param, -1);
-    n.param("paexample/fft_size", fft_size, -1);
-    n.param("paexample/mel_filters", mel_filters, 100);
-    n.param("paexample/mel_filter_overlap", mel_filter_overlap, 0.5);
-    n.param("paexample/f_min", f_min, -1);
-    n.param("paexample/f_max", f_max, -1);
-    n.param("paexample/num_coefs", num_coefs, 13);
-    ros::Publisher pub = n.advertise<paexample::featMsg>(featuresTopic, 1000);
+    n.param("audio_features_extraction/frame_overlap", frame_overlap, 0.0);
+    n.param("audio_features_extraction/preemphasis_coeff", preemphasis_coeff, 0.97);
+    n.param("audio_features_extraction/window_type", window_type, 1);
+    n.param("audio_features_extraction/window_param", window_param, -1);
+    n.param("audio_features_extraction/fft_size", fft_size, -1);
+    n.param("audio_features_extraction/mel_filters", mel_filters, 100);
+    n.param("audio_features_extraction/mel_filter_overlap", mel_filter_overlap, 0.5);
+    n.param("audio_features_extraction/f_min", f_min, -1);
+    n.param("audio_features_extraction/f_max", f_max, -1);
+    n.param("audio_features_extraction/num_coefs", num_coefs, 13);
+    ros::Publisher pub = n.advertise<audio_features_extraction::featMsg>(featuresTopic, 1000);
 
     //Specify loop rate if you want
     //ros::Rate loop_rate(10);
@@ -473,7 +473,7 @@ int main(int argc, char* argv[])
         }
         */
 
-        paexample::featMsg feat_msg;
+        audio_features_extraction::featMsg feat_msg;
         
         //feat_msg.time = ((time_t)clock()/(double)CLOCKS_PER_SEC)*1000;//cpu time in ms
         ros::Time e_ros = ros::Time::now();
