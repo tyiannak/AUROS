@@ -5,9 +5,7 @@
   <description>The audio_features_extraction ros package</description>
 
 
-  <maintainer email="konstant@iit.demokritos.gr">Stasinos Konstantopoulos</maintainer>
-  <maintainer email="tyiannak@gmail.com">Theodore Giannakopoulos</maintainer>
-  <maintainer email="siantikosg@gmail.com">Giorgos Siantikos</maintainer>
+ 
   <maintainer email="gstavrinos@iit.demokritos.gr">George Stavrinos</maintainer>
 
 
@@ -16,7 +14,8 @@
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
 
-
+  <author email="tyiannak@gmail.com">Theodore Giannakopoulos</author>
+  <author email="siantikosg@gmail.com">Giorgos Siantikos</author>
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->

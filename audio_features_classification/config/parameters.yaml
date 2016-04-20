@@ -1,0 +1,5 @@
+classifier_name: 'modelSVM'
+classes:
+  -silence
+  -speech
+current_class: silence #class to be added now by class_generator
