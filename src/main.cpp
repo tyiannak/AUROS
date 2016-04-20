@@ -52,7 +52,7 @@ public:
             if (val(i) != val(i))                
             {
                 std::cout << val(i) << " " <<  i << std::endl;
-                val(i) = 0;
+                //val(i) = 0;
             }
 
         sum_ += val;

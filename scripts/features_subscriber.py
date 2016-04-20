@@ -73,7 +73,7 @@ def featuresCallback(feat_msg):
 
     curFV = feat_msg.ltWin1mean + feat_msg.ltWin1deviation                                              # merge long term mean and std feature statistics (from the respective topic)        
     curFV = list(curFV)
-    del curFV[18]
+    del curFV[18]    
     
     if count == 0:
         start_time = feat_msg.time                                                                      # get current timestamp
@@ -118,7 +118,7 @@ if __name__ == '__main__':
         classNames = []
         for a in sys.argv[3::]:
             temp = numpy.load(a)
-            temp = numpy.delete(temp, (18), axis=1)
+            #temp = numpy.delete(temp, (18), axis=1)            
             features.append(temp)                        
             classNames.append(a.replace(".npy",""))            
         classifierParams = numpy.array([0.001, 0.01,  0.5, 1.0, 5.0])
