@@ -379,8 +379,14 @@ int main(int argc, char* argv[])
     std::vector<float> featVect(4 + mfcc.num_coefs);
     
     while(ros::ok() && get_samples(s)){
+        float max = -100;
         for (unsigned j=0; j<scopy.size(); ++j)
+        {
             scopy[j] = s[j];
+            if (max < scopy[j])
+                max = scopy[j];
+        }                                
+        //std::cout << max << std::endl ;
 
         double E = energy(s);
         double Z = zcr(s);

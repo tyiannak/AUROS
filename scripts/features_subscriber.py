@@ -91,11 +91,18 @@ def featuresCallback(feat_msg):
         #print "{0:.5f}\t{1:.3f}\t{2:.3f}\t{3:s}".format(feat_msg.features[0], float(count) / 20.0, feat_msg.time-start_time, classResult)
         
         #energies = numpy.append(energies, feat_msg.features[0])                                     # append mid-term energy (1st feature)        
-        if classResult == "silence":
+        EnergyThreshold = 0.90 * sum(energies)/float(len(energies)+0.00000001)                
+        if classResult == "silenceSmall":            
             energies.append(curFVOr[0])
-        else:
-            energies.append(sum(energies)/(float(len(energies))+0.0001))
-        print "{0:s}\t{1:.5f}\t{2:.5f}\t{3:.5f}".format(classResult, feat_msg.features[0], curFVOr[0],sum(energies)/float(len(energies)))
+        else:                        
+            if curFVOr[0] < EnergyThreshold:
+                classResult = "silenceSmall"
+                energies.append(curFVOr[0])
+            else:
+                energies.append(sum(energies)/(float(len(energies))+0.0001))        
+                
+
+        print "{0:s}\t{1:.5f}\t{2:.5f}\t{3:.5f}".format(classResult, feat_msg.features[0], curFVOr[0], EnergyThreshold )
     
     prevTime = feat_msg.time                                                                            # get current timestamp
     count += 1                                                                                          # update global counter
