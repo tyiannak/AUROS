@@ -80,7 +80,8 @@ def featuresCallback(feat_msg):
     class_pub.class_result.data = str(classResult)
     class_pub.probability.data = float(P[int(Result)])
     classification_publisher.publish(class_pub)
-
+    # print  class_pub
+    
 if __name__ == '__main__':
     initSubscriber()
         

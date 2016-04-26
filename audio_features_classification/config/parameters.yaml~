@@ -4,9 +4,9 @@ features_topic: "/audio_features_extraction/features"
 classifier_name: 'modelSVM'
 #Used by train and visualize
 classes:
-  - silence
-  - speech
-  - music
+  silence
+  speech
+  music
 #Used by class_generator
 current_class: speech #class to be added NOW by class_generator
 #Used by classifier

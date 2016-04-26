@@ -8,6 +8,6 @@ classes:
   speech
   music
 #Used by class_generator
-current_class: silence #class to be added NOW by class_generator
+current_class: music #class to be added NOW by class_generator
 #Used by classifier
 classification_topic: "audio_classification"
