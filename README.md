@@ -1,5 +1,5 @@
 - - - - - - - - - - 
-install and setup ros
+INSTALL AND SETUP ROS
 - - - - - - - -- - 
 
  * sudo apt-get install ros-jade-desktop-full
@@ -14,12 +14,12 @@ install and setup ros
  * echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 - - - - - - - - - - 
-Build
+BUILD
 - - - - - - - - - - 
 catkin_make --pkg paexample
 
 - - - - - - - -
-Requirements
+REQUIREMENTS
 - - - - - - - -
 a) fftw: 
 sudo apt-get install libfftw3-dev 
@@ -44,6 +44,6 @@ http://wiki.ros.org/jade/Installation/Ubuntu
 
 
 - - - - - - - -
-Execution instruction
+EXECUTION INSTRUCTIONS
 - - - - - - - -
 Enter the a package subdirectory to see specific execution instructions
