@@ -11,10 +11,7 @@ import matplotlib.pyplot as plt
 features_subscriber = None
 
 global mtFeaturesMatrix
-global prevTime
-global count
 global className
-global start_time
 
 mtFeaturesMatrix = []
 prevTime = 0
