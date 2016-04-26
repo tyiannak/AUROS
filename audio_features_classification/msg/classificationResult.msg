@@ -1,0 +1,3 @@
+Header header
+std_msgs/String class_result
+std_msgs/Float32 probability

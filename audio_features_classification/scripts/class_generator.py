@@ -35,9 +35,10 @@ signal.signal(signal.SIGINT, signal_handler)
 def initSubscriber():
     global features_subscriber
     global className
-    rospy.init_node("class_generator_node")              # start the node
-    className = rospy.get_param('/audio_features_classifier/current_class', 'silence')
-    features_subscriber = rospy.Subscriber("/audio_features_extraction/features", featMsg, featuresCallback)    # subscribe the featuresCallback() callback function
+    rospy.init_node("class_generator_node")
+    className = rospy.get_param('~current_class', 'silence')
+    topic = rospy.get_param('~features_topic','/audio_features_extraction/features')
+    features_subscriber = rospy.Subscriber(topic, featMsg, featuresCallback)
     print "Waiting for features_topic to be published..."
     rospy.spin()
 

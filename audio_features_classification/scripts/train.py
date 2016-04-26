@@ -9,9 +9,9 @@ from pyAudioAnalysis import audioTrainTest
 
 if __name__ == '__main__':
     try:
-        modelName = rospy.get_param('/audio_features_classifier/classifier_name', 'modelSVM')
+        modelName = rospy.get_param('~classifier_name', 'modelSVM')
         features = []
-        classNames = rospy.get_param('/audio_features_classifier/classes', {'silence', 'speech'})
+        classNames = rospy.get_param('~classes', {'silence', 'speech'})
         for a in classNames:
             temp = numpy.load(os.path.dirname(os.path.realpath(sys.argv[0]))+'/classifier_data/'+a+'.npy')        
             features.append(temp)                                

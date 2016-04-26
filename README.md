@@ -18,21 +18,6 @@ Build
 - - - - - - - - - - 
 catkin_make --pkg paexample
 
-- - - - - - - - - - 
-Run
-- - - - - - - - - - 
-Feature extraction module (in a separate console tab): 
-roslaunch paexample paexample.launch
-
-Train and Run:
- * rosrun paexample features_subscriber.py addClass silence
- * rosrun paexample features_subscriber.py addClass speech
- * rosrun paexample features_subscriber.py addClass music
- * rosrun paexample features_subscriber.py addClass activity
- * rosrun paexample features_subscriber.py train model1 silence.npy speech.npy music.npy activity.npy 
- * rosrun paexample features_subscriber.py run model1
-
-
 - - - - - - - -
 Requirements
 - - - - - - - -
@@ -58,9 +43,7 @@ For Ubuntu 15 use (ROS Jade):
 http://wiki.ros.org/jade/Installation/Ubuntu
 
 
-
-- - - - - - - - - - 
-    USAGE MODES
-- - - - - - - -- - 
-
-In order to run the different modes of the paexample, use the parameters.yaml file under the config folder.
+- - - - - - - -
+Execution instruction
+- - - - - - - -
+Enter the a package subdirectory to see specific execution instructions

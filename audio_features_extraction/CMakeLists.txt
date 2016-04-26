@@ -32,7 +32,7 @@ catkin_package(
   CATKIN_DEPENDS roscpp rospy roslib std_msgs
 )
 
-include_directories(${catkin_INCLUDE_DIRS} ${BOOST_INCLUDE_DIR} ${Boost_INCLUDE_DIR} src)
+include_directories(${catkin_INCLUDE_DIRS} ${BOOST_INCLUDE_DIR} ${Boost_INCLUDE_DIR} src include)
 
 aux_source_directory(src SRC_LIST)
 
@@ -40,7 +40,7 @@ add_executable(audio_features_extraction ${SRC_LIST})
 target_link_libraries( ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES} portaudiocpp fftw3 sndfile)
 
 file(GLOB_RECURSE  LIB_CPP "./src/*.cpp")
-file(GLOB_RECURSE  LIB_HDRS "./src/*.h")
+file(GLOB_RECURSE  LIB_HDRS "./include/*.hpp")
 
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall" )
 

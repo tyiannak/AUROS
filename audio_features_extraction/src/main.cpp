@@ -213,33 +213,33 @@ double spectralCentroid(Eigen::VectorXd FFT, int Fs)
 int main(int argc, char* argv[])
 {
     ros::init(argc, argv, "audio_features_extraction");
-    ros::NodeHandle n;
+    ros::NodeHandle n("~");
     bool write_wav, write_features;
     int stWin, ltWin1, ltWin2, window_type, window_param, fft_size, mel_filters, f_min, f_max, num_coefs;
     double frame_overlap, preemphasis_coeff, mel_filter_overlap;
     std::string featuresTopic, exec_mode, wav_filename, features_filename;
-    n.param("audio_features_extraction/mode", exec_mode, std::string("device-input"));
-    n.param("audio_features_extraction/write_wav", write_wav, false);
-    n.param("audio_features_extraction/wav_filename", wav_filename, std::string("output.wav"));
-    n.param("audio_features_extraction/write_features", write_features, false);
-    n.param("audio_features_extraction/features_filename", features_filename, std::string("output_features"));
+    n.param("mode", exec_mode, std::string("device-input"));
+    n.param("write_wav", write_wav, false);
+    n.param("wav_filename", wav_filename, std::string("output.wav"));
+    n.param("write_features", write_features, false);
+    n.param("features_filename", features_filename, std::string("output_features"));
 
-    n.param("audio_features_extraction/stWin", stWin, 20);
-    n.param("audio_features_extraction/ltWin1", ltWin1, 50);
-    n.param("audio_features_extraction/ltWin2", ltWin2, 250);
+    n.param("stWin", stWin, 20);
+    n.param("ltWin1", ltWin1, 50);
+    n.param("ltWin2", ltWin2, 250);
 
-    n.param("audio_features_extraction/features_topic", featuresTopic, std::string("features_topic"));
+    n.param("features_topic", featuresTopic, std::string("features"));
 
-    n.param("audio_features_extraction/frame_overlap", frame_overlap, 0.0);
-    n.param("audio_features_extraction/preemphasis_coeff", preemphasis_coeff, 0.97);
-    n.param("audio_features_extraction/window_type", window_type, 1);
-    n.param("audio_features_extraction/window_param", window_param, -1);
-    n.param("audio_features_extraction/fft_size", fft_size, -1);
-    n.param("audio_features_extraction/mel_filters", mel_filters, 100);
-    n.param("audio_features_extraction/mel_filter_overlap", mel_filter_overlap, 0.5);
-    n.param("audio_features_extraction/f_min", f_min, -1);
-    n.param("audio_features_extraction/f_max", f_max, -1);
-    n.param("audio_features_extraction/num_coefs", num_coefs, 13);
+    n.param("frame_overlap", frame_overlap, 0.0);
+    n.param("preemphasis_coeff", preemphasis_coeff, 0.97);
+    n.param("window_type", window_type, 1);
+    n.param("window_param", window_param, -1);
+    n.param("fft_size", fft_size, -1);
+    n.param("mel_filters", mel_filters, 100);
+    n.param("mel_filter_overlap", mel_filter_overlap, 0.5);
+    n.param("f_min", f_min, -1);
+    n.param("f_max", f_max, -1);
+    n.param("num_coefs", num_coefs, 13);
     ros::Publisher pub = n.advertise<audio_features_extraction::featMsg>(featuresTopic, 1000);
 
     //Specify loop rate if you want
@@ -379,9 +379,12 @@ int main(int argc, char* argv[])
     std::vector<float> featVect(4 + mfcc.num_coefs);
     
     while(ros::ok() && get_samples(s)){
-        for (unsigned j=0; j<scopy.size(); ++j)
-            scopy[j] = s[j];
-
+	float max = -100;
+        for (unsigned j=0; j<scopy.size(); ++j){
+	    scopy[j] = s[j];
+	    if (max < scopy[j])
+                max = scopy[j];
+	}
         double E = energy(s);
         double Z = zcr(s);
         double EE = energyEntropy(s, E);

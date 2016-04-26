@@ -5,7 +5,7 @@
 mode: 'device-input' #possible modes: list-devices/device-input/file-input
 write_wav: false #not applicable on list-devices mode
 wav_filename: 'output.wav' #not applicable on list-devices mode
-write_features: false #not applicable on list-devices mode
+write_features: false #not applicable on list-devices moden
 features_filename: 'output_features' #not applicable on list-devices mode
 
 
@@ -14,8 +14,8 @@ features_filename: 'output_features' #not applicable on list-devices mode
 ##
 
 # Feature vectors are published in this topic
-# default: 'features_topic'
-features_topic: 'audio_features_extraction/features'
+# default: 'features'
+features_topic: 'features'
 
 
 ##

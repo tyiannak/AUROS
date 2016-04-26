@@ -7,11 +7,14 @@ find_package(catkin REQUIRED COMPONENTS
   roslib
   std_msgs
   sensor_msgs
+  message_runtime
+  message_generation
 )
+
+add_message_files(FILES classificationResult.msg)
 
 generate_messages(
 	DEPENDENCIES
-  sensor_msgs
 	std_msgs
 )
 
