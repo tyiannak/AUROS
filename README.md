@@ -16,11 +16,15 @@ INSTALL AND SETUP ROS
 - - - - - - - - - - 
 BUILD
 - - - - - - - - - - 
-catkin_make --pkg paexample
+
+catkin_make --pkg audio_features_classification
+
+catkin_make --pkg audio_features_extraction
 
 - - - - - - - -
 REQUIREMENTS
 - - - - - - - -
+
 a) fftw: 
 sudo apt-get install libfftw3-dev 
 
@@ -46,4 +50,5 @@ http://wiki.ros.org/jade/Installation/Ubuntu
 - - - - - - - -
 EXECUTION INSTRUCTIONS
 - - - - - - - -
+
 Enter the a package subdirectory to see specific execution instructions
