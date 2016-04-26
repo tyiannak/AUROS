@@ -1,0 +1,52 @@
+##
+## ARGUMENTS
+##
+
+mode: 'device-input' #possible modes: list-devices/device-input/file-input
+write_wav: false #not applicable on list-devices mode
+wav_filename: 'output.wav' #not applicable on list-devices mode
+write_features: false #not applicable on list-devices moden
+features_filename: 'output_features' #not applicable on list-devices mode
+
+
+##
+## FEATURES TOPIC
+##
+
+# Feature vectors are published in this topic
+# default: 'features'
+features_topic: 'features'
+
+
+##
+## FEATURES PARAMETERS
+##
+
+# Short-term window in mseconds
+# must be a multiple of 10
+# default: 20 msec
+stWin: 50
+
+# First layer of long-term sliding window average
+# must be 1 < ltWin1 <= 10000
+# default: 50 stWin frames
+ltWin1: 20
+
+# Second layer of long-term sliding window average
+# must be ltWin1 < ltWin2 <= 10000
+# default: 250
+# use -1 if you do not want to use a second sliding window
+ltWin2: 250
+
+frame_overlap: 0.0
+preemphasis_coeff: 0.97
+window_type: 1
+window_param: -1
+fft_size: -1
+
+#mfcc
+mel_filters: 24
+mel_filter_overlap: 0.5
+f_min: -1
+f_max: -1
+num_coefs: 13

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+	<master auto="start"/>
+
+	<node pkg="audio_features_classification" type="classifier.py" respawn="false" name="audio_features_classification_classifier" output="screen">
+		<rosparam file="$(find audio_features_classification)/config/parameters.yaml" command="load" />
+	</node>
+</launch>
