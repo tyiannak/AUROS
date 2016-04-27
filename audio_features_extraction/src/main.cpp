@@ -41,6 +41,7 @@ public:
         , aux_(ndim)
     {}
 
+    
     Eigen::VectorXd mean() { return sum_ * (1.0 / buffer_.size()); }
     Eigen::VectorXd std()  { return (nm1 * sum_sq_ - nnm1 * sum_.cwiseProduct(sum_)).array().sqrt(); }
 
@@ -136,6 +137,7 @@ void list_input_devices(pa::System & instance)
 
 double energy(std::vector<float> A)
 {
+    // Computes the energy (normalized sum of squares) of an audio signal
     double E = 0.0;
     for (unsigned int i=0; i<A.size(); i++)
         E += ((double)A[i] * (double)A[i]);
@@ -144,6 +146,7 @@ double energy(std::vector<float> A)
 
 double zcr(std::vector<float> A)
 {
+    // Computes the Zero Crossing Rate of an audio signal
     int countZCR = 0;
     for (unsigned int i=1; i<A.size(); i++)
         if ( ( (  A[i]  >0 ) && (  A[i-1]  <0 ) ) || ( ( A[i]  <0 ) && ( A[i-1] >0 ) ) )
@@ -153,6 +156,7 @@ double zcr(std::vector<float> A)
 
 double energyEntropy(std::vector<float> A, double Energy)
 {
+    // Computes the entropy of energy of an audio signal
     int M = A.size();
 
     int numOfEnergyEntropyBins = 10;                         // number of energy entropy sub-frames (bins)
@@ -196,10 +200,11 @@ double energyEntropy(std::vector<float> A, double Energy)
 
 double spectralCentroid(Eigen::VectorXd FFT, int Fs)
 {
+    // Computes the spectral centroid of an audio signal (FFT provided as argument)
     double Centroid = 0.0;
     double Sum = 0.0;
     int M = FFT.size();
-    for ( int i = 0; i<M; i++ ) // for each fft sample:
+    for ( int i = 0; i<M; i++ )                   // for each fft sample:
     {
         Centroid += FFT[i] * ( double ) i;        // Spectral Centroid Numerator
         Sum += FFT[i];                            // Total spectral energy
@@ -348,7 +353,7 @@ int main(int argc, char* argv[])
     std::vector<float> s(win.size);
     std::vector<double> scopy(win.size);
 
-    Eigen::VectorXd featuresAll(4 + mfcc.num_coefs);
+    Eigen::VectorXd featuresAll(2 * (4 + mfcc.num_coefs));
     Eigen::VectorXd FFT;
 
     bool WAVWRITE = false;
@@ -374,10 +379,18 @@ int main(int argc, char* argv[])
     ros::Time s_ros = ros::Time::now();
 
 
-    RollingStats ltWin1_stats(4 + mfcc.num_coefs, ltWin1);
-    RollingStats ltWin2_stats(4 + mfcc.num_coefs, ltWin2);
-    std::vector<float> featVect(4 + mfcc.num_coefs);
+    RollingStats ltWin1_stats(2*(4 + mfcc.num_coefs), ltWin1);
+    RollingStats ltWin2_stats(2*(4 + mfcc.num_coefs), ltWin2);
+    std::vector<float> featVect(2*(4 + mfcc.num_coefs));
     
+
+    Eigen::VectorXd prevMFCC = Eigen::VectorXd::Zero(num_coefs);
+    double prevE = 0.0;
+    double prevZ = 0.0;
+    double prevEE = 0.0;
+    double prevSC = 0.0;    
+
+
     while(ros::ok() && get_samples(s)){
 	float max = -100;
         for (unsigned j=0; j<scopy.size(); ++j){
@@ -392,14 +405,21 @@ int main(int argc, char* argv[])
         if (WAVWRITE)
             wavFile.write(s.data(), s.size());
 
-        win.bang(scopy);                                        // apply window
-        stft.bang(win.output);                                    // apply fft
-        FFT = Eigen::VectorXd::Map(stft.output.data(),stft.output.size());    // fft to eigen array
-        FFT = FFT / FFT.size();                                 // FFT normalization
-        mfb.bang(stft.output);                                    // mfcc filter bank initialization
-        mfcc.bang(mfb.output);                                    // mfcc calculation
+        win.bang(scopy);                                                    // apply window
+        stft.bang(win.output);                                              // apply fft
+        FFT = Eigen::VectorXd::Map(stft.output.data(),stft.output.size());  // fft to eigen array
+        FFT = FFT / FFT.size();                                             // FFT normalization
+        mfb.bang(stft.output);                                              // mfcc filter bank initialization
+        mfcc.bang(mfb.output);                                              // mfcc calculation
 
-        featuresAll << E, Z, EE, SC, mfcc.output;
+        featuresAll << E, Z, EE, SC, mfcc.output, prevE, prevZ, prevEE, prevSC, prevMFCC;                           // merge features
+
+        prevMFCC = mfcc.output;        
+        prevE = E;
+        prevZ = Z;
+        prevEE = EE;
+        prevSC = SC;    
+
         ltWin1_stats.push(featuresAll);
         ltWin2_stats.push(featuresAll);
 

@@ -45,14 +45,27 @@ def featuresCallback(feat_msg):
 
     curFV = feat_msg.ltWin1mean + feat_msg.ltWin1deviation                                              # merge long term mean and std feature statistics (from the respective topic)        
     curFV = list(curFV)
-    del curFV[18]    
+    #del curFV[18]    
     
     if count == 0:
         start_time = feat_msg.time                                                                      # get current timestamp
 
     mtFeaturesMatrix.append(curFV)
-    print "{0:.3f}\t{1:.3f}".format(float(count) / 20.0, feat_msg.time-start_time)
-
+    
+    print "{0:.3f}\t{1:.3f}\t - class: {2:s}".format(float(count) / 20.0, feat_msg.time-start_time, className)
+    '''
+    if count % 10 == 0:
+        plt.clf()
+        ax1 = plt.subplot(2,1,1)
+        plt.plot(curFV[0:len(curFV)/2])
+        ax2 = plt.subplot(2,1,2)
+        plt.plot(curFV[len(curFV)/2::])
+        plt.ion()
+        plt.show()
+        ax1.set_ylim([0,20])
+        ax2.set_ylim([0,20])
+        plt.draw()
+    '''
     prevTime = feat_msg.time                                                                            # get current timestamp
     count += 1                                                                                          # update global counter
 
