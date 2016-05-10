@@ -38,20 +38,23 @@ public:
         , buffer_(size)
         , sum_(Eigen::VectorXd::Zero(ndim))
         , sum_sq_(Eigen::VectorXd::Zero(ndim))
+        , eps_(1e-10 * Eigen::VectorXd::Ones(ndim))
         , aux_(ndim)
     {}
 
     
     Eigen::VectorXd mean() { return sum_ * (1.0 / buffer_.size()); }
-    Eigen::VectorXd std()  { return (nm1 * sum_sq_ - nnm1 * sum_.cwiseProduct(sum_)).array().sqrt(); }
+    Eigen::VectorXd std()  { return (nm1 * sum_sq_ + eps_ - nnm1 * sum_.cwiseProduct(sum_)).array().sqrt(); }
+    // Eigen::VectorXd std()  { return (nm1 * sum_sq_ - nnm1 * sum_.cwiseProduct(sum_)); }
 
-    std::vector<float> meanf() { auto m = mean(); std::copy(m.data(), m.data() + m.size(), aux_.begin()); return aux_; }
-    std::vector<float> stdf() { auto s = std(); std::copy(s.data(), s.data() + s.size(), aux_.begin()); return aux_; }    
+    std::vector<float> meanf() { auto m = mean(); for (unsigned i=0; i<aux_.size(); ++i) aux_[i] = m(i); return aux_; }
+    //std::vector<float> stdf() { auto m = std(); for (unsigned i=0; i<aux_.size(); ++i) {aux_[i] = m(i);} return aux_; }    
+    std::vector<float> stdf()  { auto m = std(); for (unsigned i=0; i<aux_.size(); ++i) aux_[i] = m(i); return aux_; }    
     void push(const Eigen::VectorXd & val)
     {        
         for (unsigned int i=0; i<val.size(); i++)
-            if (val(i) != val(i))                
-            {
+            if ((val(i) != val(i)) || (val(i) * val(i) != val(i) * val(i)))
+            {                
                 std::cout << val(i) << " " <<  i << std::endl;
                 //val(i) = 0;
             }
@@ -72,7 +75,7 @@ public:
     const double nm1, nnm1;
 
 private:
-    Eigen::VectorXd sum_, sum_sq_;
+    Eigen::VectorXd sum_, sum_sq_, eps_;
     boost::circular_buffer<Eigen::VectorXd> buffer_;
     std::vector<float> aux_;
 
@@ -392,12 +395,17 @@ int main(int argc, char* argv[])
 
 
     while(ros::ok() && get_samples(s)){
-	float max = -100;
+	float max = -100000;
+    float min = 100000;
         for (unsigned j=0; j<scopy.size(); ++j){
 	    scopy[j] = s[j];
 	    if (max < scopy[j])
                 max = scopy[j];
+        if (min > scopy[j])
+                min = scopy[j];
+
 	}
+        std::cout << min << " " << max << "\n";
         double E = energy(s);
         double Z = zcr(s);
         double EE = energyEntropy(s, E);
@@ -412,8 +420,11 @@ int main(int argc, char* argv[])
         mfb.bang(stft.output);                                              // mfcc filter bank initialization
         mfcc.bang(mfb.output);                                              // mfcc calculation
 
-        featuresAll << E, Z, EE, SC, mfcc.output, prevE, prevZ, prevEE, prevSC, prevMFCC;                           // merge features
-
+        featuresAll << E, Z, EE, SC, mfcc.output, E - prevE, Z - prevZ, E - prevEE, SC - prevSC, mfcc.output - prevMFCC;                           // merge features
+        
+        std::cout << "min Feature:" << featuresAll.maxCoeff() << "\n";
+        std::cout << "max Feature:" << featuresAll.minCoeff() << "\n";        
+        // std::cout << featuresAll << "\n\n\n\n";
         prevMFCC = mfcc.output;        
         prevE = E;
         prevZ = Z;
@@ -504,11 +515,12 @@ int main(int argc, char* argv[])
         feat_msg.time = dur_ros;
         
         std::copy(featuresAll.data(), featuresAll.data() + featuresAll.size(), featVect.begin());
+
         feat_msg.features = featVect;
         feat_msg.ltWin1mean = ltWin1_stats.meanf();//ltWin1mean;
         feat_msg.ltWin1deviation = ltWin1_stats.stdf(); //ltWin1deviation;
         feat_msg.ltWin2mean = ltWin2_stats.meanf();//ltWin2mean;
-        feat_msg.ltWin2deviation = ltWin2_stats.stdf();//ltWin2deviation;
+        feat_msg.ltWin2deviation = ltWin2_stats.stdf();//ltWin2deviation;    
 
         pub.publish(feat_msg);
 

@@ -71,7 +71,7 @@ def featuresCallback(feat_msg):
     else:
         if curFVOr[0] < EnergyThreshold:
             classResult = "silence"
-            energies.apend(curFVOr[0])
+            energies.append(curFVOr[0])
         else:
             energies.append(sum(energies)/(float(len(energies))+0.0001))
 
@@ -80,6 +80,7 @@ def featuresCallback(feat_msg):
     class_pub.class_result.data = str(classResult)
     class_pub.probability.data = float(P[int(Result)])
     classification_publisher.publish(class_pub)
+    print curFVOr
     print numpy.nonzero(numpy.isnan(numpy.array(curFVOr).mean(axis = 0))), classResult
     
 if __name__ == '__main__':

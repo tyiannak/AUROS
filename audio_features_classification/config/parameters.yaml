@@ -9,6 +9,6 @@ classes:
   ring1
   ring2
 #Used by class_generator
-current_class: ring2 #class to be added NOW by class_generator
+current_class: silence #class to be added NOW by class_generator
 #Used by classifier
 classification_topic: "audio_classification"
