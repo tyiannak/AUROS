@@ -5,9 +5,10 @@ classifier_name: 'modelSVM'
 #Used by train and visualize
 classes:
   silence
-  speech
-  music
+  keys
+  ring1
+  ring2
 #Used by class_generator
-current_class: speech #class to be added NOW by class_generator
+current_class: ring2 #class to be added NOW by class_generator
 #Used by classifier
 classification_topic: "audio_classification"
