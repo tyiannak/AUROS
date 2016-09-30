@@ -7,7 +7,7 @@ write_wav: false #not applicable on list-devices mode
 wav_filename: 'output.wav' #not applicable on list-devices mode
 write_features: false #not applicable on list-devices moden
 features_filename: 'output_features' #not applicable on list-devices mode
-
+doa_serial_device: '/dev/ttyUSB0'
 
 ##
 ## FEATURES TOPIC

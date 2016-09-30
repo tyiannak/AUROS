@@ -1,14 +1,14 @@
 #Used by classifier and class_generator
 features_topic: "/audio_features_extraction/features"
 #Used by train and classifier
-classifier_name: 'modelSVM'
+classifier_name: 'modelSVMtemp'
 #Used by train and visualize
 classes:
   silence
-  keys
-  ring1
-  ring2
+  activity
+  music
+  speech
 #Used by class_generator
-current_class: silence #class to be added NOW by class_generator
+current_class: music #class to be added NOW by class_generator
 #Used by classifier
 classification_topic: "audio_classification"

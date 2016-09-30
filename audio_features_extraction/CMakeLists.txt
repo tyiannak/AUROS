@@ -23,7 +23,7 @@ generate_messages(
 	std_msgs
 )
 
-find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
+find_package(Boost 1.40 COMPONENTS program_options system REQUIRED)
 find_package(portaudiocpp)
 find_package(fftw3)
 find_package(sndfile)
