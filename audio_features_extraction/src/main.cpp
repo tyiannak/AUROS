@@ -4,6 +4,7 @@
 #include <memory>
 #include <sndfile.hh>
 #include <boost/format.hpp>
+#include <boost/asio.hpp>
 #include <boost/program_options.hpp>
 #include <portaudiocpp/PortAudioCpp.hxx>
 #include <boost/program_options.hpp>
@@ -12,7 +13,8 @@
 #include <boost/circular_buffer.hpp>
 #include "audio_pimp.hpp"
 #include "mfcc_extraction.hpp"
-
+#include "std_msgs/Int32.h"
+#include "std_msgs/Float32.h"
 
 #include <deque>
 #include <math.h>
@@ -134,6 +136,29 @@ void list_input_devices(pa::System & instance)
     std::cout << "*---*---------------------------------------------------*---------*------------*\n";
 }
 
+
+class SerialDevice {
+public:
+    SerialDevice(std::string port, unsigned baudrate);
+    void read(uint8_t* c, unsigned size=1);
+
+private:
+    boost::asio::io_service io;
+    boost::asio::serial_port serial_port;
+};
+
+SerialDevice::SerialDevice(std::string port, unsigned baudrate)
+    : serial_port(io, port)
+{
+    serial_port.set_option(boost::asio::serial_port_base::baud_rate(baudrate));
+}
+
+void SerialDevice::read(uint8_t *c, unsigned size)
+{
+    boost::asio::read(serial_port, boost::asio::buffer(c, size));
+}
+
+
 //////////////////////////////
 //        FEATURES          //
 //////////////////////////////
@@ -220,12 +245,15 @@ double spectralCentroid(Eigen::VectorXd FFT, int Fs)
 
 int main(int argc, char* argv[])
 {
+
     ros::init(argc, argv, "audio_features_extraction");
     ros::NodeHandle n("~");
     bool write_wav, write_features;
     int stWin, ltWin1, ltWin2, window_type, window_param, fft_size, mel_filters, f_min, f_max, num_coefs;
+    std::string doa_serial_device;
+
     double frame_overlap, preemphasis_coeff, mel_filter_overlap;
-    std::string featuresTopic, exec_mode, wav_filename, features_filename;
+    std::string featuresTopic, exec_mode, wav_filename, features_filename, doaTopicRaw, doaTopicAngle;
     n.param("mode", exec_mode, std::string("device-input"));
     n.param("write_wav", write_wav, false);
     n.param("wav_filename", wav_filename, std::string("output.wav"));
@@ -237,6 +265,8 @@ int main(int argc, char* argv[])
     n.param("ltWin2", ltWin2, 250);
 
     n.param("features_topic", featuresTopic, std::string("features"));
+    n.param("doaTopicRaw", doaTopicRaw, std::string("doaTopicRaw"));
+    n.param("doaTopicAngle", doaTopicAngle, std::string("doaTopicAngle"));
 
     n.param("frame_overlap", frame_overlap, 0.0);
     n.param("preemphasis_coeff", preemphasis_coeff, 0.97);
@@ -248,7 +278,24 @@ int main(int argc, char* argv[])
     n.param("f_min", f_min, -1);
     n.param("f_max", f_max, -1);
     n.param("num_coefs", num_coefs, 13);
-    ros::Publisher pub = n.advertise<audio_features_extraction::featMsg>(featuresTopic, 1000);
+
+    n.param("doa_serial_device", doa_serial_device, std::string("/dev/ttyUSB0"));
+
+
+    std::unique_ptr<SerialDevice> SD;
+    bool doaDeviceFound = false;
+    try 
+    {
+        SD.reset(new SerialDevice(doa_serial_device, 2400)); 
+        doaDeviceFound = true;                              // open serial connection        
+    } catch (std::exception & e) {
+        std::cout << "MIC ARRAY DEVICE NOT FOUND";
+    }
+
+
+    ros::Publisher pub = n.advertise<audio_features_extraction::featMsg>(featuresTopic, 1000);    
+    ros::Publisher pubDoaRaw = n.advertise<std_msgs::Int32>(doaTopicRaw, 1000);    
+    ros::Publisher pubDoaAngle = n.advertise<std_msgs::Int32>(doaTopicAngle, 1000);    
 
     //Specify loop rate if you want
     //ros::Rate loop_rate(10);
@@ -394,7 +441,31 @@ int main(int argc, char* argv[])
     double prevSC = 0.0;    
 
 
-    while(ros::ok() && get_samples(s)){
+    uint8_t _doa_raw;    
+
+    while(ros::ok() && get_samples(s)){        
+    
+    if (doaDeviceFound)
+    {
+        SD->read(&_doa_raw);        
+        //int32_t doa_raw = static_cast<int32_t>(_doa_raw);
+        //std_msgs::Int32 doa_raw = static_cast<int32_t>(_doa_raw);
+        //std_msgs::Float32 doa_angle = -0.675265272712 * static_cast<int>(_doa_raw) + 78.044542802;
+        // std::cout << doa_raw << " " << doa_angle<< "\n";
+        std_msgs::Int32 doa_angle;
+        if (static_cast<int>(_doa_raw) == 255)
+            doa_angle.data = 0;            
+        else
+            doa_angle.data = -0.675265272712 * static_cast<int>(_doa_raw) + 78.044542802;
+        pubDoaAngle.publish(doa_angle);
+
+        std_msgs::Int32 doa_raw;
+        doa_raw.data = _doa_raw;
+        pubDoaRaw.publish(doa_raw);
+
+
+    }    
+
 	float max = -100000;
     float min = 100000;
         for (unsigned j=0; j<scopy.size(); ++j){
@@ -405,7 +476,7 @@ int main(int argc, char* argv[])
                 min = scopy[j];
 
 	}
-        std::cout << min << " " << max << "\n";
+        // std::cout << min << " " << max << "\n";
         double E = energy(s);
         double Z = zcr(s);
         double EE = energyEntropy(s, E);
@@ -422,8 +493,8 @@ int main(int argc, char* argv[])
 
         featuresAll << E, Z, EE, SC, mfcc.output, E - prevE, Z - prevZ, E - prevEE, SC - prevSC, mfcc.output - prevMFCC;                           // merge features
         
-        std::cout << "min Feature:" << featuresAll.maxCoeff() << "\n";
-        std::cout << "max Feature:" << featuresAll.minCoeff() << "\n";        
+        // std::cout << "min Feature:" << featuresAll.maxCoeff() << "\n";
+        // std::cout << "max Feature:" << featuresAll.minCoeff() << "\n";        
         // std::cout << featuresAll << "\n\n\n\n";
         prevMFCC = mfcc.output;        
         prevE = E;
