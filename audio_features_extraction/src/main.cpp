@@ -21,7 +21,7 @@
 #include "ros/ros.h"
 #include <ros/package.h>
 #include <ctime>
-#include "audio_features_extraction/featMsg.h"
+#include "audio_features_msgs/featMsg.h"
 
 
 namespace pa = portaudio;
@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
     }
 
 
-    ros::Publisher pub = n.advertise<audio_features_extraction::featMsg>(featuresTopic, 1000);    
+    ros::Publisher pub = n.advertise<audio_features_msgs::featMsg>(featuresTopic, 1000);    
     ros::Publisher pubDoaRaw = n.advertise<std_msgs::Int32>(doaTopicRaw, 1000);    
     ros::Publisher pubDoaAngle = n.advertise<std_msgs::Int32>(doaTopicAngle, 1000);    
 
@@ -578,7 +578,7 @@ int main(int argc, char* argv[])
         }
         */
 
-        audio_features_extraction::featMsg feat_msg;
+        audio_features_msgs::featMsg feat_msg;
         
         //feat_msg.time = ((time_t)clock()/(double)CLOCKS_PER_SEC)*1000;//cpu time in ms
         ros::Time e_ros = ros::Time::now();

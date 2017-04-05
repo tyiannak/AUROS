@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy
 import rospy
-from audio_features_extraction.msg import featMsg
+from audio_features_msgs.msg import featMsg
 import signal
 import sys
 import os
