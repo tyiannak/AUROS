@@ -58,7 +58,11 @@ def featuresCallback(feat_msg):
 
     curFV = feat_msg.ltWin1mean + feat_msg.ltWin1deviation  #merge long term mean and std feature statistics (from the respective topic)        
     curFV = list(curFV)
+<<<<<<< HEAD
     del curFV[18]    
+=======
+    #del curFV[18]    
+>>>>>>> upstream/master
 
     curFVOr = curFV
     curFV = (curFV - classifierInfo["MEAN"]) / classifierInfo["STD"]                                # feature normalization                        
@@ -66,12 +70,21 @@ def featuresCallback(feat_msg):
     classResult = list(classifierInfo["classNames"])[int(Result)]
 
     EnergyThreshold = 0.90 * sum(energies)/float(len(energies)+0.00000001)
+<<<<<<< HEAD
     if classResult == "silenceSmall":
         energies.append(curFVOr[0])
     else:
         if curFVOr[0] < EnergyThreshold:
             classResult = "silenceSmall"
             energies.apend(curFVOr[0])
+=======
+    if classResult == "silence":
+        energies.append(curFVOr[0])
+    else:
+        if curFVOr[0] < EnergyThreshold:
+            classResult = "silence"
+            energies.append(curFVOr[0])
+>>>>>>> upstream/master
         else:
             energies.append(sum(energies)/(float(len(energies))+0.0001))
 
@@ -80,7 +93,13 @@ def featuresCallback(feat_msg):
     class_pub.class_result.data = str(classResult)
     class_pub.probability.data = float(P[int(Result)])
     classification_publisher.publish(class_pub)
+<<<<<<< HEAD
 
+=======
+    #print curFVOr
+    print numpy.nonzero(numpy.isnan(numpy.array(curFVOr).mean(axis = 0))), classResult
+    
+>>>>>>> upstream/master
 if __name__ == '__main__':
     initSubscriber()
         

@@ -4,6 +4,7 @@
 #include <memory>
 #include <sndfile.hh>
 #include <boost/format.hpp>
+#include <boost/asio.hpp>
 #include <boost/program_options.hpp>
 #include <portaudiocpp/PortAudioCpp.hxx>
 #include <boost/program_options.hpp>
@@ -12,7 +13,8 @@
 #include <boost/circular_buffer.hpp>
 #include "audio_pimp.hpp"
 #include "mfcc_extraction.hpp"
-
+#include "std_msgs/Int32.h"
+#include "std_msgs/Float32.h"
 
 #include <deque>
 #include <math.h>
@@ -38,19 +40,23 @@ public:
         , buffer_(size)
         , sum_(Eigen::VectorXd::Zero(ndim))
         , sum_sq_(Eigen::VectorXd::Zero(ndim))
+        , eps_(1e-10 * Eigen::VectorXd::Ones(ndim))
         , aux_(ndim)
     {}
 
+    
     Eigen::VectorXd mean() { return sum_ * (1.0 / buffer_.size()); }
-    Eigen::VectorXd std()  { return (nm1 * sum_sq_ - nnm1 * sum_.cwiseProduct(sum_)).array().sqrt(); }
+    Eigen::VectorXd std()  { return (nm1 * sum_sq_ + eps_ - nnm1 * sum_.cwiseProduct(sum_)).array().sqrt(); }
+    // Eigen::VectorXd std()  { return (nm1 * sum_sq_ - nnm1 * sum_.cwiseProduct(sum_)); }
 
-    std::vector<float> meanf() { auto m = mean(); std::copy(m.data(), m.data() + m.size(), aux_.begin()); return aux_; }
-    std::vector<float> stdf() { auto s = std(); std::copy(s.data(), s.data() + s.size(), aux_.begin()); return aux_; }    
+    std::vector<float> meanf() { auto m = mean(); for (unsigned i=0; i<aux_.size(); ++i) aux_[i] = m(i); return aux_; }
+    //std::vector<float> stdf() { auto m = std(); for (unsigned i=0; i<aux_.size(); ++i) {aux_[i] = m(i);} return aux_; }    
+    std::vector<float> stdf()  { auto m = std(); for (unsigned i=0; i<aux_.size(); ++i) aux_[i] = m(i); return aux_; }    
     void push(const Eigen::VectorXd & val)
     {        
         for (unsigned int i=0; i<val.size(); i++)
-            if (val(i) != val(i))                
-            {
+            if ((val(i) != val(i)) || (val(i) * val(i) != val(i) * val(i)))
+            {                
                 std::cout << val(i) << " " <<  i << std::endl;
                 //val(i) = 0;
             }
@@ -71,7 +77,7 @@ public:
     const double nm1, nnm1;
 
 private:
-    Eigen::VectorXd sum_, sum_sq_;
+    Eigen::VectorXd sum_, sum_sq_, eps_;
     boost::circular_buffer<Eigen::VectorXd> buffer_;
     std::vector<float> aux_;
 
@@ -130,12 +136,36 @@ void list_input_devices(pa::System & instance)
     std::cout << "*---*---------------------------------------------------*---------*------------*\n";
 }
 
+
+class SerialDevice {
+public:
+    SerialDevice(std::string port, unsigned baudrate);
+    void read(uint8_t* c, unsigned size=1);
+
+private:
+    boost::asio::io_service io;
+    boost::asio::serial_port serial_port;
+};
+
+SerialDevice::SerialDevice(std::string port, unsigned baudrate)
+    : serial_port(io, port)
+{
+    serial_port.set_option(boost::asio::serial_port_base::baud_rate(baudrate));
+}
+
+void SerialDevice::read(uint8_t *c, unsigned size)
+{
+    boost::asio::read(serial_port, boost::asio::buffer(c, size));
+}
+
+
 //////////////////////////////
 //        FEATURES          //
 //////////////////////////////
 
 double energy(std::vector<float> A)
 {
+    // Computes the energy (normalized sum of squares) of an audio signal
     double E = 0.0;
     for (unsigned int i=0; i<A.size(); i++)
         E += ((double)A[i] * (double)A[i]);
@@ -144,6 +174,7 @@ double energy(std::vector<float> A)
 
 double zcr(std::vector<float> A)
 {
+    // Computes the Zero Crossing Rate of an audio signal
     int countZCR = 0;
     for (unsigned int i=1; i<A.size(); i++)
         if ( ( (  A[i]  >0 ) && (  A[i-1]  <0 ) ) || ( ( A[i]  <0 ) && ( A[i-1] >0 ) ) )
@@ -153,6 +184,7 @@ double zcr(std::vector<float> A)
 
 double energyEntropy(std::vector<float> A, double Energy)
 {
+    // Computes the entropy of energy of an audio signal
     int M = A.size();
 
     int numOfEnergyEntropyBins = 10;                         // number of energy entropy sub-frames (bins)
@@ -196,10 +228,11 @@ double energyEntropy(std::vector<float> A, double Energy)
 
 double spectralCentroid(Eigen::VectorXd FFT, int Fs)
 {
+    // Computes the spectral centroid of an audio signal (FFT provided as argument)
     double Centroid = 0.0;
     double Sum = 0.0;
     int M = FFT.size();
-    for ( int i = 0; i<M; i++ ) // for each fft sample:
+    for ( int i = 0; i<M; i++ )                   // for each fft sample:
     {
         Centroid += FFT[i] * ( double ) i;        // Spectral Centroid Numerator
         Sum += FFT[i];                            // Total spectral energy
@@ -212,12 +245,22 @@ double spectralCentroid(Eigen::VectorXd FFT, int Fs)
 
 int main(int argc, char* argv[])
 {
+<<<<<<< HEAD:audio_features_extraction/src/main.cpp
+=======
+
+>>>>>>> upstream/master:audio_features_extraction/src/main.cpp
     ros::init(argc, argv, "audio_features_extraction");
     ros::NodeHandle n("~");
     bool write_wav, write_features;
     int stWin, ltWin1, ltWin2, window_type, window_param, fft_size, mel_filters, f_min, f_max, num_coefs;
+    std::string doa_serial_device;
+
     double frame_overlap, preemphasis_coeff, mel_filter_overlap;
+<<<<<<< HEAD:audio_features_extraction/src/main.cpp
     std::string featuresTopic, exec_mode, wav_filename, features_filename;
+=======
+    std::string featuresTopic, exec_mode, wav_filename, features_filename, doaTopicRaw, doaTopicAngle;
+>>>>>>> upstream/master:audio_features_extraction/src/main.cpp
     n.param("mode", exec_mode, std::string("device-input"));
     n.param("write_wav", write_wav, false);
     n.param("wav_filename", wav_filename, std::string("output.wav"));
@@ -229,6 +272,11 @@ int main(int argc, char* argv[])
     n.param("ltWin2", ltWin2, 250);
 
     n.param("features_topic", featuresTopic, std::string("features"));
+<<<<<<< HEAD:audio_features_extraction/src/main.cpp
+=======
+    n.param("doaTopicRaw", doaTopicRaw, std::string("doaTopicRaw"));
+    n.param("doaTopicAngle", doaTopicAngle, std::string("doaTopicAngle"));
+>>>>>>> upstream/master:audio_features_extraction/src/main.cpp
 
     n.param("frame_overlap", frame_overlap, 0.0);
     n.param("preemphasis_coeff", preemphasis_coeff, 0.97);
@@ -240,7 +288,28 @@ int main(int argc, char* argv[])
     n.param("f_min", f_min, -1);
     n.param("f_max", f_max, -1);
     n.param("num_coefs", num_coefs, 13);
+<<<<<<< HEAD:audio_features_extraction/src/main.cpp
     ros::Publisher pub = n.advertise<audio_features_extraction::featMsg>(featuresTopic, 1000);
+=======
+
+    n.param("doa_serial_device", doa_serial_device, std::string("/dev/ttyUSB0"));
+
+
+    std::unique_ptr<SerialDevice> SD;
+    bool doaDeviceFound = false;
+    try 
+    {
+        SD.reset(new SerialDevice(doa_serial_device, 2400)); 
+        doaDeviceFound = true;                              // open serial connection        
+    } catch (std::exception & e) {
+        std::cout << "MIC ARRAY DEVICE NOT FOUND";
+    }
+
+
+    ros::Publisher pub = n.advertise<audio_features_extraction::featMsg>(featuresTopic, 1000);    
+    ros::Publisher pubDoaRaw = n.advertise<std_msgs::Int32>(doaTopicRaw, 1000);    
+    ros::Publisher pubDoaAngle = n.advertise<std_msgs::Int32>(doaTopicAngle, 1000);    
+>>>>>>> upstream/master:audio_features_extraction/src/main.cpp
 
     //Specify loop rate if you want
     //ros::Rate loop_rate(10);
@@ -348,7 +417,7 @@ int main(int argc, char* argv[])
     std::vector<float> s(win.size);
     std::vector<double> scopy(win.size);
 
-    Eigen::VectorXd featuresAll(4 + mfcc.num_coefs);
+    Eigen::VectorXd featuresAll(2 * (4 + mfcc.num_coefs));
     Eigen::VectorXd FFT;
 
     bool WAVWRITE = false;
@@ -374,17 +443,63 @@ int main(int argc, char* argv[])
     ros::Time s_ros = ros::Time::now();
 
 
-    RollingStats ltWin1_stats(4 + mfcc.num_coefs, ltWin1);
-    RollingStats ltWin2_stats(4 + mfcc.num_coefs, ltWin2);
-    std::vector<float> featVect(4 + mfcc.num_coefs);
+    RollingStats ltWin1_stats(2*(4 + mfcc.num_coefs), ltWin1);
+    RollingStats ltWin2_stats(2*(4 + mfcc.num_coefs), ltWin2);
+    std::vector<float> featVect(2*(4 + mfcc.num_coefs));
     
+<<<<<<< HEAD:audio_features_extraction/src/main.cpp
     while(ros::ok() && get_samples(s)){
 	float max = -100;
+=======
+
+    Eigen::VectorXd prevMFCC = Eigen::VectorXd::Zero(num_coefs);
+    double prevE = 0.0;
+    double prevZ = 0.0;
+    double prevEE = 0.0;
+    double prevSC = 0.0;    
+
+
+    uint8_t _doa_raw;    
+
+    while(ros::ok() && get_samples(s)){        
+    
+    if (doaDeviceFound)
+    {
+        SD->read(&_doa_raw);        
+        //int32_t doa_raw = static_cast<int32_t>(_doa_raw);
+        //std_msgs::Int32 doa_raw = static_cast<int32_t>(_doa_raw);
+        //std_msgs::Float32 doa_angle = -0.675265272712 * static_cast<int>(_doa_raw) + 78.044542802;
+        // std::cout << doa_raw << " " << doa_angle<< "\n";
+        std_msgs::Int32 doa_angle;
+        if (static_cast<int>(_doa_raw) == 255)
+            doa_angle.data = 0;            
+        else
+            doa_angle.data = -0.675265272712 * static_cast<int>(_doa_raw) + 78.044542802;
+        pubDoaAngle.publish(doa_angle);
+
+        std_msgs::Int32 doa_raw;
+        doa_raw.data = _doa_raw;
+        pubDoaRaw.publish(doa_raw);
+
+
+    }    
+
+	float max = -100000;
+    float min = 100000;
+>>>>>>> upstream/master:audio_features_extraction/src/main.cpp
         for (unsigned j=0; j<scopy.size(); ++j){
 	    scopy[j] = s[j];
 	    if (max < scopy[j])
                 max = scopy[j];
+<<<<<<< HEAD:audio_features_extraction/src/main.cpp
 	}
+=======
+        if (min > scopy[j])
+                min = scopy[j];
+
+	}
+        // std::cout << min << " " << max << "\n";
+>>>>>>> upstream/master:audio_features_extraction/src/main.cpp
         double E = energy(s);
         double Z = zcr(s);
         double EE = energyEntropy(s, E);
@@ -392,14 +507,24 @@ int main(int argc, char* argv[])
         if (WAVWRITE)
             wavFile.write(s.data(), s.size());
 
-        win.bang(scopy);                                        // apply window
-        stft.bang(win.output);                                    // apply fft
-        FFT = Eigen::VectorXd::Map(stft.output.data(),stft.output.size());    // fft to eigen array
-        FFT = FFT / FFT.size();                                 // FFT normalization
-        mfb.bang(stft.output);                                    // mfcc filter bank initialization
-        mfcc.bang(mfb.output);                                    // mfcc calculation
+        win.bang(scopy);                                                    // apply window
+        stft.bang(win.output);                                              // apply fft
+        FFT = Eigen::VectorXd::Map(stft.output.data(),stft.output.size());  // fft to eigen array
+        FFT = FFT / FFT.size();                                             // FFT normalization
+        mfb.bang(stft.output);                                              // mfcc filter bank initialization
+        mfcc.bang(mfb.output);                                              // mfcc calculation
 
-        featuresAll << E, Z, EE, SC, mfcc.output;
+        featuresAll << E, Z, EE, SC, mfcc.output, E - prevE, Z - prevZ, E - prevEE, SC - prevSC, mfcc.output - prevMFCC;                           // merge features
+        
+        // std::cout << "min Feature:" << featuresAll.maxCoeff() << "\n";
+        // std::cout << "max Feature:" << featuresAll.minCoeff() << "\n";        
+        // std::cout << featuresAll << "\n\n\n\n";
+        prevMFCC = mfcc.output;        
+        prevE = E;
+        prevZ = Z;
+        prevEE = EE;
+        prevSC = SC;    
+
         ltWin1_stats.push(featuresAll);
         ltWin2_stats.push(featuresAll);
 
@@ -484,11 +609,12 @@ int main(int argc, char* argv[])
         feat_msg.time = dur_ros;
         
         std::copy(featuresAll.data(), featuresAll.data() + featuresAll.size(), featVect.begin());
+
         feat_msg.features = featVect;
         feat_msg.ltWin1mean = ltWin1_stats.meanf();//ltWin1mean;
         feat_msg.ltWin1deviation = ltWin1_stats.stdf(); //ltWin1deviation;
         feat_msg.ltWin2mean = ltWin2_stats.meanf();//ltWin2mean;
-        feat_msg.ltWin2deviation = ltWin2_stats.stdf();//ltWin2deviation;
+        feat_msg.ltWin2deviation = ltWin2_stats.stdf();//ltWin2deviation;    
 
         pub.publish(feat_msg);
 
