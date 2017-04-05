@@ -1,13 +1,24 @@
 #Used by classifier and class_generator
 features_topic: "/audio_features_extraction/features"
 #Used by train and classifier
+<<<<<<< HEAD
 classifier_name: 'modelSVM'
 #Used by train and visualize
 classes:
+  -silence
+  -speech
+#Used by class_generator
+current_class: silence #class to be added NOW by class_generator
+=======
+classifier_name: 'modelSVMtemp'
+#Used by train and visualize
+classes:
   silence
-  speech
+  activity
   music
+  speech
 #Used by class_generator
 current_class: music #class to be added NOW by class_generator
+>>>>>>> upstream/master
 #Used by classifier
 classification_topic: "audio_classification"

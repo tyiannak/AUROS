@@ -7,7 +7,7 @@ write_wav: false #not applicable on list-devices mode
 wav_filename: 'output.wav' #not applicable on list-devices mode
 write_features: false #not applicable on list-devices moden
 features_filename: 'output_features' #not applicable on list-devices mode
-
+doa_serial_device: '/dev/ttyUSB0'
 
 ##
 ## FEATURES TOPIC
@@ -36,7 +36,7 @@ ltWin1: 20
 # must be ltWin1 < ltWin2 <= 10000
 # default: 250
 # use -1 if you do not want to use a second sliding window
-ltWin2: 250
+ltWin2: 20
 
 frame_overlap: 0.0
 preemphasis_coeff: 0.97
