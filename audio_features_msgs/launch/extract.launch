@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<launch>
-	<master auto="start"/>
-
-	<node pkg="audio_features_extraction" type="audio_features_extraction" respawn="false" name="audio_features_extraction" output="screen">
-		<rosparam file="$(find audio_features_extraction)/config/parameters.yaml" command="load" />
-	</node>
-</launch>
