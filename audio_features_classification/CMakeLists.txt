@@ -7,15 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslib
   std_msgs
   sensor_msgs
-  message_runtime
-  message_generation
-)
-
-add_message_files(FILES classificationResult.msg)
-
-generate_messages(
-	DEPENDENCIES
-	std_msgs
+  audio_features_msgs
 )
 
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)

@@ -2,14 +2,14 @@
 import cPickle
 import numpy
 import roslib, rospy
-from audio_features_extraction.msg import featMsg
+from audio_features_msgs.msg import featMsg
 import signal
 import sys
 import os
 from pyAudioAnalysis import audioTrainTest
 import matplotlib.pyplot as plt
 import collections
-from audio_features_classification.msg import classificationResult
+from audio_features_msgs.msg import classificationResult
 
 features_subscriber = None
 classification_publisher = None

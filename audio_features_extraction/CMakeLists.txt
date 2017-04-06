@@ -10,17 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   roslib
   std_msgs
-  message_generation
-)
-
-add_message_files(
-	FILES
-	featMsg.msg
-)
-
-generate_messages(
-	DEPENDENCIES
-	std_msgs
+  audio_features_msgs
 )
 
 find_package(Boost 1.40 COMPONENTS program_options system REQUIRED)
